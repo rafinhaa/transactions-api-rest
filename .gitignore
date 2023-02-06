@@ -2,3 +2,6 @@ node_modules
 
 ### Development database
 database/app.db
+
+### Dotenv file
+.env
