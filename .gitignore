@@ -1,4 +1,4 @@
 node_modules
 
 ### Development database
-database
+database/app.db
