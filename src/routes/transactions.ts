@@ -9,9 +9,34 @@ const createTransactionBodySchema = z.object({
   type: z.enum(["credit", "debit"]),
 });
 
+const getTransactionParamsSchema = z.object({
+  id: z.string().uuid(),
+});
+
 type TransactionBody = z.infer<typeof createTransactionBodySchema>;
+type TransactionParams = z.infer<typeof getTransactionParamsSchema>;
 
 export const transactions = async (app: FastifyInstance) => {
+  app.get("/", async (_, rep) => {
+    const transactions = await knex("transactions").select("*");
+
+    return rep.status(200).send({ transactions });
+  });
+
+  app.get<{
+    Params: TransactionParams;
+  }>("/:id", async (req, rep) => {
+    const { id } = getTransactionParamsSchema.parse(req.params);
+    const transactions = await knex("transactions")
+      .select("*")
+      .where({
+        id,
+      })
+      .first();
+
+    return rep.status(200).send({ transactions });
+  });
+
   app.post<{ Body: TransactionBody }>("/", async (req, rep) => {
     const { amount, title, type } = createTransactionBodySchema.parse(req.body);
     await knex("transactions").insert({
