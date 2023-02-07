@@ -3,6 +3,8 @@ import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { knex } from "../database";
 
+const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
+
 const createTransactionBodySchema = z.object({
   title: z.string(),
   amount: z.number(),
@@ -51,12 +53,25 @@ export const transactions = async (app: FastifyInstance) => {
 
   app.post<{ Body: TransactionBody }>("/", async (req, rep) => {
     const { amount, title, type } = createTransactionBodySchema.parse(req.body);
-    await knex("transactions").insert({
-      id: randomUUID(),
-      title,
-      amount: type === "credit" ? amount : amount * -1,
-    });
 
-    return rep.status(201).send();
+    const sessionId = req.cookies.sessionId;
+
+    const [transactions] = await knex("transactions").insert(
+      {
+        id: randomUUID(),
+        title,
+        amount: type === "credit" ? amount : amount * -1,
+        session_id: sessionId ? sessionId : randomUUID(),
+      },
+      ["session_id"]
+    );
+
+    return rep
+      .cookie("sessionId", transactions.session_id, {
+        path: "/transactions",
+        maxAge: SEVEN_DAYS,
+      })
+      .status(201)
+      .send();
   });
 };
