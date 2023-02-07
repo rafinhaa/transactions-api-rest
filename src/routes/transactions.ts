@@ -37,6 +37,18 @@ export const transactions = async (app: FastifyInstance) => {
     return rep.status(200).send({ transactions });
   });
 
+  app.get<{
+    Params: TransactionParams;
+  }>("/summary", async (req, rep) => {
+    const summary = await knex("transactions")
+      .sum("amount", {
+        as: "amount",
+      })
+      .first();
+
+    return rep.status(200).send({ summary });
+  });
+
   app.post<{ Body: TransactionBody }>("/", async (req, rep) => {
     const { amount, title, type } = createTransactionBodySchema.parse(req.body);
     await knex("transactions").insert({
