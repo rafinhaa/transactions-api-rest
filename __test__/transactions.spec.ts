@@ -11,7 +11,7 @@ describe("app", () => {
     app.close();
   });
 
-  it("should user can create a new transaction", async () => {
+  it("should be able to create a new transaction", async () => {
     const response = await supertest(app.server).post("/transactions").send({
       title: "abc",
       amount: 5000,
