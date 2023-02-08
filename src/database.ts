@@ -4,12 +4,12 @@ import { env } from "./env";
 export const config: Knex.Config = {
   client: env.DATABASE_CLIENT,
   connection: {
-    filename: "./database/app.db",
+    filename: env.DATABASE_URL,
   },
   useNullAsDefault: true,
   migrations: {
     extension: "ts",
-    directory: env.DATABASE_URL,
+    directory: "./database/migrations",
   },
 };
 

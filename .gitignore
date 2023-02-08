@@ -3,5 +3,9 @@ node_modules
 ### Development database
 database/app.db
 
+### Testing database
+database/test.db
+
 ### Dotenv file
 .env
+.env.test
